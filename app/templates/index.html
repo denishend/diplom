@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Notes App — Dark</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0f1217;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: auto;
+            padding: 30px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .card {
+            background: #1b1f27;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px #0007;
+        }
+
+        .left {
+            flex: 3;
+        }
+
+        .right {
+            flex: 1.4;
+        }
+
+        input, textarea, select {
+            width: calc(100% - 22px);
+            margin-top: 12px;
+            padding: 10px;
+            background: #13161b;
+            border: 1px solid #2a2f38;
+            color: #fff;
+            border-radius: 8px;
+            resize: none;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px;
+            background: #7c3aed;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 8px;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #8b5cf6;
+        }
+
+        .note {
+            background: #171b21;
+            margin-top: 12px;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #2a2f38;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #272b33;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-right: 6px;
+            color: #a8b3c7;
+        }
+
+        .del-btn {
+            background: #d32f2f;
+            margin-top: 10px;
+        }
+
+        .del-btn:hover {
+            background: #ef5350;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #333;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- LEFT BLOCK -->
+    <div class="left card">
+        <h2>Создать заметку</h2>
+
+        <input id="title" placeholder="Заголовок">
+        <textarea id="content" rows="5" placeholder="Текст заметки..."></textarea>
+        <input id="tags" placeholder="Теги через запятую">
+
+        <button onclick="createNote()">Создать</button>
+
+        <hr>
+        <h3>Результаты</h3>
+        <div id="notes"></div>
+    </div>
+
+    <!-- RIGHT BLOCK -->
+    <div class="right card">
+        <h2>Поиск / Фильтры</h2>
+
+        <input id="search" placeholder="Поиск по заголовку">
+        <input id="tagSearch" placeholder="Фильтр по тегу">
+
+        <select id="sort">
+            <option value="">Сортировка (новые сверху)</option>
+            <option value="created_at_desc">Дата ↓</option>
+            <option value="created_at_asc">Дата ↑</option>
+            <option value="title_asc">A → Z</option>
+            <option value="title_desc">Z → A</option>
+        </select>
+
+        <button onclick="loadNotes()">Применить</button>
+        <button onclick="resetFilters()" style="background:#374151;margin-top:10px;">Сброс</button>
+
+        <hr>
+        <h3>Инфо</h3>
+        <p>Используй поиск, фильтр и сортировку вместе.
+           Все параметры передаются через query-параметры.</p>
+    </div>
+
+</div>
+
+
+<script>
+    const API = "/notes";
+
+    async function loadNotes() {
+        const search = document.getElementById("search").value;
+        const tag = document.getElementById("tagSearch").value;
+        const sort = document.getElementById("sort").value;
+
+        const params = new URLSearchParams();
+        if (search) params.append("search", search);
+        if (tag) params.append("tag", tag);
+        if (sort) params.append("sort", sort);
+
+        const res = await fetch(`${API}?${params.toString()}`);
+        const notes = await res.json();
+
+        const block = document.getElementById("notes");
+        block.innerHTML = "";
+
+        notes.forEach(n => {
+            const div = document.createElement("div");
+            div.className = "note";
+
+            div.innerHTML = `
+                <h3>${n.title}</h3>
+                <p>${n.content}</p>
+                <div>${n.tags.split(",").map(t => `<span class="tag">${t.trim()}</span>`).join("")}</div>
+                <button class="del-btn" onclick="deleteNote(${n.id})">Удалить</button>
+            `;
+            block.appendChild(div);
+        });
+    }
+
+
+    async function createNote() {
+        const title = document.getElementById("title").value;
+        const content = document.getElementById("content").value;
+        const tags = document.getElementById("tags").value;
+
+        await fetch(API, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ title, content, tags })
+        });
+
+        document.getElementById("title").value = "";
+        document.getElementById("content").value = "";
+        document.getElementById("tags").value = "";
+
+        loadNotes();
+    }
+
+
+    async function deleteNote(id) {
+        await fetch(`${API}/${id}`, { method: "DELETE" });
+        loadNotes();
+    }
+
+
+    function resetFilters() {
+        document.getElementById("search").value = "";
+        document.getElementById("tagSearch").value = "";
+        document.getElementById("sort").value = "";
+        loadNotes();
+    }
+
+    loadNotes();
+</script>
+
+</body>
+</html>

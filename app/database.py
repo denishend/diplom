@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-DATABASE_URL = "sqlite:///./notes.db"
+DATABASE_URL = r"sqlite:///C:\Users\shend\PycharmProjects\DP\notes.db"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
