@@ -10,8 +10,10 @@ from app.schemas import NoteCreate, NoteUpdate
 def get_notes_with_filters(db: Session, search: str | None = None, tag: str | None = None, sort: str | None = None) -> List[Note]:
     query = db.query(Note)
 
+    # TODO: Добавьте экранирование спецсимволов для защиты от SQL LIKE injection
+    # См. REVIEW.md секция "Критические проблемы" пункт 4
     if search:
-        pattern = f"%{search}%"
+        pattern = f"%{search}%"  # TODO: добавить search.replace('%', '\\%').replace('_', '\\_')
         query = query.filter(
             (Note.title.ilike(pattern)) | (Note.content.ilike(pattern))
         )
@@ -37,13 +39,18 @@ def get_notes_with_filters(db: Session, search: str | None = None, tag: str | No
     else:
         query = query.order_by(desc(Note.created_at))
 
-    return query.all()
+    # TODO: Добавьте пагинацию (skip, limit)
+    # При большом количестве заметок загружаются все
+    # См. REVIEW.md секция "Критические проблемы" пункт 5
+    return query.all()  # TODO: добавить .offset(skip).limit(limit)
 
 
 def get_note(db: Session, note_id: int):
     return db.query(Note).filter(Note.id == note_id).first()
 
 def create_note(db: Session, note: NoteCreate):
+    # TODO: Добавьте обработку ошибок БД с try/except SQLAlchemyError
+    # См. REVIEW.md секция "Критические проблемы" пункт 6
     n = Note(**note.dict())
     db.add(n)
     db.commit()
