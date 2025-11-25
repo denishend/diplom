@@ -5,14 +5,21 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 # Используйте относительный путь или переменные окружения
 # См. REVIEW.md секция "Критические проблемы" пункт 1
 # Правильно: DATABASE_URL = "sqlite:///./notes.db"
-DATABASE_URL = r"sqlite:///C:\Users\shend\PycharmProjects\DP\notes.db"
+from app.config import settings
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+DATABASE_URL = settings.database_url
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+)
 
 class Base(DeclarativeBase):
     pass
+
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
 
 def get_db():
     db = SessionLocal()

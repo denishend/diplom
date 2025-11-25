@@ -1,0 +1,42 @@
+# Notes API
+
+Простое REST API для управления заметками.
+
+Возможности
+
+- Создание заметок
+- Получение списка всех заметок
+- Поиск по title/content
+- Фильтрация по тегам
+- Сортировка по дате и названию
+- Удаление заметок
+- Логирование
+- Миграции через Alembic
+
+
+Установка
+\`\`\`bash
+pip install -r requirements.txt
+Создайте файл .env
+DATABASE_URL=sqlite:///./notes.db
+alembic upgrade head
+uvicorn app.main:app --reload
+\`\`\`
+
+API Endpoints
+- POST /notes/ - Создать заметку
+- GET /notes/ - Список заметок (поиск, фильтры)
+- GET /notes/{id} - Получить заметку
+- DELETE /notes/{id} - Удалить заметку
+
+
+После запуска API доступно по адресу:
+http://localhost:8000/app
+Swagger UI → http://localhost:8000/docs
+
+Используемые технологии
+FastAPI
+SQLAlchemy 2.0
+Alembic
+Pydantic
+Uvicorn

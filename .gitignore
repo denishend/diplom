@@ -1,21 +1,25 @@
-*.pyc
+__pycache__/
+*.py[cod]
 *.pyo
 *.pyd
-pycache/
+
+.venv
+.idea/
+.vscode/
 
 .venv/
 venv/
 ENV/
-.env
 env/
+.env
 
 *.log
-*.pot
-*.pyc
-pycache/
-db.sqlite3
+*.sqlite
+*.db
 notes.db
 
+.idea/
 .vscode/
 
-.idea/
+# pytest cache
+.pytest_cache/

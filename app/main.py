@@ -1,23 +1,31 @@
 import os
-
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 
-from .database import Base, engine
 from .routers import notes
+import logging
 
-# TODO: Удалите эту строку! Используйте только Alembic миграции
-# При каждом запуске пересоздаются таблицы, игнорируются миграции
-# См. REVIEW.md секция "Критические проблемы" пункт 2
-Base.metadata.create_all(bind=engine)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Notes API")
+app = FastAPI(
+    title="Notes API",
+    description="API для управления заметками: создание, поиск, фильтры, сортировка",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
 
 app.include_router(notes.router)
+
 
 @app.get("/")
 def root():
     return {"message": "Notes API is working!"}
+
 
 @app.get("/app")
 def frontend():
